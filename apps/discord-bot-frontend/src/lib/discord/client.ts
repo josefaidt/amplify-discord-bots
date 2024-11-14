@@ -178,7 +178,7 @@ client.on(Events.MessageCreate, async (message: Message) => {
     embed.setColor('#ff9900')
     // TODO: add more info on /thread command
     embed.setDescription(
-      "Hey there! :wave: we've created a thread for you!\n\nUse `/thread rename` to change the title.\n\nUse `/thread solved` to mark this thread as solved."
+      "Hey there! :wave: we've created a thread for you!\n\nUse `/thread rename` to change the title.\n\nUse `/thread solved` to mark this thread as solved.",
     )
     thread.send({ embeds: [embed] })
   }
@@ -198,7 +198,7 @@ client.on(Events.InteractionCreate, async (interaction: Interaction) => {
   }
 
   console.log(
-    `Handling command "${command?.name}" for ${interaction.user.username}#${interaction.user.discriminator}`
+    `Handling command "${command?.name}" for ${interaction.user.username}#${interaction.user.discriminator}`,
   )
 
   await command.handle(interaction)
@@ -206,7 +206,7 @@ client.on(Events.InteractionCreate, async (interaction: Interaction) => {
 
 client.on('rateLimit', (info) => {
   console.log(
-    `Rate limit hit ${info.timeout ? info.timeout : 'Unknown timeout '}`
+    `Rate limit hit ${info.timeout ? info.timeout : 'Unknown timeout '}`,
   )
 })
 /**
@@ -327,7 +327,7 @@ client.on(Events.ThreadUpdate, async (oldThread, newThread) => {
         .map(({ id, name }) => ({ id, name }))
       // get the tags that were removed
       tagsRemoved = oldThread.appliedTags.filter(
-        (id) => !appliedTagIds.includes(id)
+        (id) => !appliedTagIds.includes(id),
       )
     }
 
@@ -422,6 +422,44 @@ client.on(Events.ThreadUpdate, async (oldThread, newThread) => {
     }
     console.log(`Thread ${oldThread.id} updated`)
     console.debug('[client:events:ThreadUpdate] finished')
+  }
+})
+client.on(Events.ThreadDelete, async (thread) => {
+  console.debug('[client:events: ThreadDelete] Thread Deleted started')
+
+  if (!thread.id) {
+    console.error('No thread id found')
+    return
+  }
+
+  try {
+    //Updating the flag but in this logic we will need to change the database field. Can be done later
+
+    // if(question){
+    //   await prisma.question.update({
+    //     where: {
+    //       id: question.id,
+    //     },
+    //     data: {
+    //       isDeleted: true,
+    //     },
+    //   });
+    // }
+
+    // Alternate logic to deleting the question completely from the database. Easier for us to do this because we don't
+    // have to update the database field. This is the same as the update above.
+    const deletedQuestion = await prisma.question.delete({
+      where: {
+        threadId: thread.id,
+      },
+    })
+    if (deletedQuestion) {
+      console.log(`Deleted question from the database`)
+    } else {
+      console.error(`Unable to find question in the database`)
+    }
+  } catch (error) {
+    console.error('Unable to delete question', error)
   }
 })
 

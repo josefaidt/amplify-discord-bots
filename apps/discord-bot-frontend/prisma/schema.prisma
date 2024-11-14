@@ -51,9 +51,9 @@ model QuestionTag {
 
 model Participation {
   id               String        @id @default(cuid())
-  question         Question      @relation(fields: [questionId], references: [id])
+  question         Question      @relation(fields: [questionId], references: [id], onDelete: Cascade)
   questionId       String
-  participant      DiscordUser   @relation(fields: [participantId], references: [id])
+  participant      DiscordUser   @relation(fields: [participantId], references: [id], onDelete: NoAction)
   // @TODO - track role at the time of participation, accounts for users that _leave_ "staff"
   participantId    String
   participantRoles DiscordRole[]
