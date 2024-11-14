@@ -1,0 +1,27 @@
+name: pr-has-semver-label
+on:
+  pull_request_target:
+    branches:
+      - main
+    types:
+      - opened
+      - labeled
+      - unlabeled
+      - ready_for_review
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  pr-has-semver-label:
+    if: github.event.pull_request.draft == false
+    name: pr-has-semver-label
+    runs-on: ubuntu-latest
+    steps:
+      - id: check
+        if: |
+          contains(github.event.pull_request.labels.*.name, 'semver: major') || 
+          contains(github.event.pull_request.labels.*.name, 'semver: minor') || 
+          contains(github.event.pull_request.labels.*.name, 'semver: patch')
+        run: exit 0
+      - if: ${{ steps.check.conclusion == 'skipped' }}
+        run: exit 1
